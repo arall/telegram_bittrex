@@ -2,7 +2,7 @@
 
 import telebot
 import string
-from secrets import TELEGRAM_TOKEN, TRADE
+from secrets import TELEGRAM_TOKEN, TRADE, USERNAMES
 from lib.trader import Trader
 from lib.database import Signal
 
@@ -47,6 +47,9 @@ class Message:
             bot.reply_to(self.message, 'I don\'t understand you.\n' + HELP)
 
     def create(self):
+        if self.message.from_user.username not in USERNAMES:
+            bot.reply_to(self.message, 'Your nickname is not authorised!')
+            return
         self.signal = Signal.create(
             chat_id=self.message.chat.id,
             username=self.message.from_user.username,
