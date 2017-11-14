@@ -26,7 +26,11 @@ class Trader:
         target = self.calc_winning_price()
         self.log(
             'Current: %s | Bought: %s | Target: %s'
-            % (format(self.current_price, '.8f'), self.signal.b_price, format(target, '.8f'))
+            % (
+                format(self.current_price, '.8f'),
+                format(self.signal.b_price, '.8f'),
+                format(target, '.8f')
+            )
         )
 
         self.nothing_update()
@@ -63,12 +67,17 @@ class Trader:
             return
         if DEMO:
             return self.buy_update()
-        quantity = (float(self.signal.quantity) / float(self.current_price))
+        quantity = self.signal.btc / self.current_price
         order = self.api.buylimit(
             self.signal.market,
             quantity,
             self.current_price
         )
+        try:
+            uuid = order['uuid']
+        except IndexError:
+            self.message('API Error: %s' % order)
+            return
         uuid = order['uuid']
         self.wait_order(uuid)
         self.buy_update(uuid)
@@ -81,6 +90,11 @@ class Trader:
             self.signal.quantity,
             self.current_price
         )
+        try:
+            uuid = order['uuid']
+        except IndexError:
+            self.message('API Error: %s' % order)
+            return
         uuid = order['uuid']
         self.wait_order(uuid)
         self.sell_update(uuid)
