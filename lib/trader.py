@@ -2,7 +2,7 @@
 
 import time
 from lib.bittrex import bittrex
-from secrets import BITTREX_KEY, BITTREX_SECRET, DEMO, TRADE
+from secrets import BITTREX_KEY, BITTREX_SECRET, DEMO, TRADE, SAFE_ORDER
 import datetime
 
 ORDER_DELAY = 5
@@ -75,7 +75,7 @@ class Trader:
         )
         try:
             uuid = order['uuid']
-        except IndexError:
+        except:
             self.message('API Error: %s' % order)
             return
         uuid = order['uuid']
@@ -92,7 +92,7 @@ class Trader:
         )
         try:
             uuid = order['uuid']
-        except IndexError:
+        except:
             self.message('API Error: %s' % order)
             return
         uuid = order['uuid']
