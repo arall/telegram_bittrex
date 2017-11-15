@@ -6,8 +6,9 @@ from secrets import TELEGRAM_TOKEN, TRADE, USERNAMES
 from lib.trader import Trader
 from lib.database import Signal
 
-# Config
-HELP = 'Use /buy COIN BTC_AMOUNT WIN_RATIO [STOP_LOSS]\n/buy DOGE 0.01 5% 0.0001'
+# Default help message
+HELP = 'Use /buy COIN BTC_AMOUNT WIN_RATIO [STOP_LOSS]\n' \
+        '/buy DOGE 0.01 5% 0.00000001'
 
 
 class Message:
@@ -29,16 +30,21 @@ class Message:
             self.create()
             return self.signal
 
+    # Decode the received /buy message
     def decode(self):
         try:
             parts = string.split(self.text, ' ')
+            # Coin code
             self.coin = parts[1]
+            # Amount of BTC's
             self.btc = round(float(parts[2]), 8)
+            # Sell at certain % or amount
             win = parts[3]
             if '%' in win:
                 self.win_percent = int(win.replace('%', ''))
             else:
                 self.win_price = round(float(win), 8)
+            # Stop loss
             if len(parts) > 4:
                 self.stop_loss = round(float(parts[4]), 8)
 
@@ -46,7 +52,9 @@ class Message:
         except Exception:
             bot.reply_to(self.message, 'I don\'t understand you.\n' + HELP)
 
+    # Create the signal Model
     def create(self):
+        # Only authorised usernames
         if self.message.from_user.username not in USERNAMES:
             bot.reply_to(self.message, 'Your nickname is not authorised!')
             return
