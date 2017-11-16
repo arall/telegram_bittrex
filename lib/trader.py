@@ -260,5 +260,9 @@ class Trader:
     # Sends a telegram message
     def message(self, text):
         if self.bot:
-            self.bot.send_message(self.signal.chat_id, text)
+            try:
+                self.bot.send_message(self.signal.chat_id, text)
+            except Exception as e:
+                self.log('Telegram error: %s' % str(e))
+                self.log('Message: %s' % text)
         print text
