@@ -52,14 +52,18 @@ class Trader:
                 return
 
         # Buy or Sell open orders
-        elif self.signal.status == 2 or self.signal.status == 4:
-            # Check the order status
-            order = self.api.getorder(self.signal.uuid)
-            print order
-            if order['IsOpen'] is not True:
-                # Update the order
-                self.processed(order)
-                return
+        elif self.signal.status == 2 or elif.signal.status == 4:
+            if self.signal.status == 2:
+                uuid = self.signal.b_uuid
+            elif.signal.status == 4:
+                uuid = self.signal.s_uuid
+                # Check the order status
+                order = self.api.getorder(self.signal.b_uuid)
+                print order
+                if order['IsOpen'] is not True:
+                    # Update the order
+                    self.processed(order)
+                    return
 
     # Get the last market price
     def get_last_price(self):
