@@ -163,7 +163,7 @@ class Trader:
             price = order['PricePerUnit']
             comission = order['CommissionPaid']
             status = 2
-            uuid = order['uuid']
+            uuid = uuid
 
         # Demo order
         else:
@@ -202,7 +202,7 @@ class Trader:
             price = order['PricePerUnit']
             comission = order['CommissionPaid']
             status = 4
-            uuid = order['uuid']
+            uuid = uuid
 
         # Demo order
         else:
