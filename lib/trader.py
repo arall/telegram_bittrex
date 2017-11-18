@@ -157,6 +157,7 @@ class Trader:
     def buy_update(self, order=None):
         # Real order
         if order:
+            print order
             quantity = order['Quantity']
             price = order['PricePerUnit']
             comission = order['CommissionPaid']
@@ -195,6 +196,7 @@ class Trader:
     def sell_update(self, order=None):
         # Real order
         if order:
+            print order
             price = order['PricePerUnit']
             comission = order['CommissionPaid']
             status = 4
