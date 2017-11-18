@@ -115,7 +115,7 @@ class Trader:
             return
 
         # Updates the order
-        self.buy_update(order)
+        self.buy_update(order['uuid'])
 
     # Create a sell order
     def sell(self):
@@ -141,7 +141,7 @@ class Trader:
             return
 
         # Updates the order
-        self.sell_update(order)
+        self.sell_update(order['uuid'])
 
     # Mark the order as processed
     def processed(self, order):
@@ -154,9 +154,10 @@ class Trader:
         self.signal.save()
 
     # Updates a completed buy order
-    def buy_update(self, order=None):
+    def buy_update(self, uuid=None):
         # Real order
-        if order:
+        if uuid:
+            order = self.api.getorder(uuid)
             print order
             quantity = order['Quantity']
             price = order['PricePerUnit']
@@ -193,9 +194,10 @@ class Trader:
         )
 
     # Updates a completed sell order
-    def sell_update(self, order=None):
+    def sell_update(self, uuid=None):
         # Real order
-        if order:
+        if uuid:
+            order = self.api.getorder(uuid)
             print order
             price = order['PricePerUnit']
             comission = order['CommissionPaid']
