@@ -19,7 +19,7 @@ class Trader:
     # Analises the signal and perform the necessary market orders
     def process(self):
         # Bittrex API error (probably a 5xx error)
-        if not self.current_price:
+        if not self.current_price or str(self.current_price) == '0.0':
             self.message('Bittrex: price error!')
             return
 
