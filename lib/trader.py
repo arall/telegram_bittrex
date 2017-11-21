@@ -19,7 +19,7 @@ class Trader:
     # Analises the signal and perform the necessary market orders
     def process(self):
         # Bittrex API error (probably a 5xx error)
-        if not self.current_price or str(self.current_price) == '0.0':
+        if not self.current_price:
             self.message('Bittrex: price error!')
             return
 
@@ -164,7 +164,7 @@ class Trader:
             order = self.api.getorder(uuid)
             print order
             quantity = order['Quantity']
-            price = order['PricePerUnit']
+            price = order['Limit']
             comission = order['CommissionPaid']
             status = 2
             uuid = uuid
@@ -203,7 +203,7 @@ class Trader:
         if uuid:
             order = self.api.getorder(uuid)
             print order
-            price = order['PricePerUnit']
+            price = order['Limit']
             comission = order['CommissionPaid']
             status = 4
             uuid = uuid
