@@ -2,12 +2,12 @@
 
 import telebot
 import string
-from secrets import TELEGRAM_TOKEN, TRADE, USERNAMES
+from secrets import TELEGRAM_TOKEN, TRADE, USERNAMES, DEFAULT_AMOUNT, DEFAULT_WIN, DEFAULT_STOPLOSS
 from lib.trader import Trader
 from lib.database import Signal
 
 # Default help message
-HELP = 'Use /buy COIN BTC_AMOUNT WIN_RATIO [STOP_LOSS]\n' \
+HELP = 'Use /buy COIN [BTC_AMOUNT] [WIN_RATIO] [STOP_LOSS]\n' \
         '/buy DOGE 0.01 5% 0.00000001'
 
 
@@ -16,10 +16,11 @@ class Message:
     signal = None
     text = ''
     coin = ''
-    btc = 0
-    win_percent = 0
+    btc = DEFAULT_AMOUNT
+    win_percent = DEFAULT_WIN
     win_price = None
     stop_loss = None
+    stop_loss_percent = DEFAULT_STOPLOSS
 
     def __init__(self, message):
         self.message = message
@@ -37,16 +38,28 @@ class Message:
             # Coin code
             self.coin = parts[1]
             # Amount of BTC's
-            self.btc = round(float(parts[2]), 8)
+            try:
+                self.btc = round(float(parts[2]), 8)
+            except:
+                pass
             # Sell at certain % or amount
-            win = parts[3]
-            if '%' in win:
-                self.win_percent = int(win.replace('%', ''))
-            else:
-                self.win_price = round(float(win), 8)
+            try:
+                win = parts[3]
+                if '%' in win:
+                    self.win_percent = int(win.replace('%', ''))
+                else:
+                    self.win_price = round(float(win), 8)
+            except:
+                pass
             # Stop loss
-            if len(parts) > 4:
-                self.stop_loss = round(float(parts[4]), 8)
+            try:
+                stoploss = parts[4]
+                if '%' in stoploss:
+                    self.stop_loss_percent = int(stoploss.replace('%', ''))
+                else:
+                    self.stop_loss = round(float(stoploss), 8)
+            except:
+                pass
 
             return True
         except Exception:
@@ -68,6 +81,7 @@ class Message:
             win_percent=self.win_percent,
             win_price=self.win_price,
             stop_loss=self.stop_loss,
+            stop_loss_percent=self.stop_loss_percent,
             status=1
         )
 

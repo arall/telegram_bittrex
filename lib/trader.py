@@ -25,12 +25,16 @@ class Trader:
 
         # Calculate the target price
         target = self.calc_target_price()
+        # Calculate the stoploss price
+        stop_loss = self.calc_stoploss_price()
+
         self.log(
-            'Current: %s | Bought: %s | Target: %s'
+            'Current: %s | Bought: %s | Target: %s | Stoploss: %s'
             % (
                 format(self.current_price, '.8f'),
                 format(self.signal.b_price, '.8f'),
-                format(target, '.8f')
+                format(target, '.8f'),
+                format(stop_loss, '.8f')
             )
         )
 
@@ -46,7 +50,7 @@ class Trader:
                 return
 
             # Stop loss sell (current price lower or equal to the stop loss)
-            if self.signal.stop_loss and self.current_price <= float(self.signal.stop_loss):
+            if stop_loss and self.current_price <= float(stop_loss):
                 self.log('Stop loss reached!')
                 self.sell()
                 return
@@ -73,6 +77,25 @@ class Trader:
         except:
             pass
 
+    # Calculate the stop loss price
+    def calc_stoploss_price(self):
+        # Price source
+        if self.signal.b_price:
+            b_price = self.signal.b_price
+        else:
+            b_price = self.current_price
+        # Percentage
+        if self.signal.stop_loss_percent is not None:
+            return float(b_price) - ((
+                float(self.signal.stop_loss_percent) *
+                float(b_price)
+            ) / 100)
+        # Amount
+        elif self.signal.stop_loss is not None:
+            return self.signal.stop_loss
+        # No stop loss
+        return 0
+
     # Calculate the target price
     def calc_target_price(self):
         # Percentage
@@ -96,7 +119,8 @@ class Trader:
     # Create a buy order
     def buy(self):
         # stop loss protection
-        if self.signal.stop_loss and self.current_price <= float(self.signal.stop_loss):
+        stop_loss = self.calc_stoploss_price()
+        if stop_loss and self.current_price <= float(stop_loss):
             self.message('Can\'t buy, stop loss reached (%s)' % format(self.current_price, '.8f'))
             return
 

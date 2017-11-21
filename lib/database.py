@@ -28,6 +28,7 @@ class Signal(Model):
     win_percent = IntegerField(null=True)
     win_price = Satoshi(null=True, max_digits=40, decimal_places=8)
     stop_loss = Satoshi(null=True, max_digits=40, decimal_places=8)
+    stop_loss_percent = IntegerField(null=True)
     date = DateTimeField(default=datetime.datetime.now)
 
     # Operation data
