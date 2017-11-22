@@ -245,6 +245,9 @@ class Trader:
         self.signal.s_date = datetime.datetime.now()
         self.signal.status = status
 
+        # BTC Price
+        btc_price = float(self.signal.s_price) * float(self.signal.quantity)
+
         # Profit
         price_change = float(self.signal.s_price) - float(self.signal.b_price)
         self.signal.profit_btc = (price_change * float(self.signal.quantity))
@@ -261,14 +264,16 @@ class Trader:
 
         # Message
         self.message(
-            'Sold %s %s at %s for %s %s (%s %% profit!)' %
+            'Sold %s %s at %s for %s %s (%s %% profit! | %s %s)' %
             (
                 self.signal.quantity,
                 self.signal.coin,
                 format(price, '.8f'),
-                self.signal.btc,
+                format(btc_price, '.8f'),
                 TRADE,
                 round(self.signal.profit_percent, 2),
+                format(self.signal.profit_btc, '.8f'),
+                TRADE,
             )
         )
 
