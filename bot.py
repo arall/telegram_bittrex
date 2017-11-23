@@ -106,4 +106,4 @@ def echo_all(message):
     bot.reply_to(message, HELP)
 
 
-bot.polling()
+bot.polling(True)
