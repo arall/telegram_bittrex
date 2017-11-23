@@ -39,9 +39,9 @@ class Trader:
                 format(self.signal.b_price, '.8f'),
                 format(target, '.8f'),
                 format(stop_loss, '.8f'),
-                round(profit_btc, '.8f'),
+                format(profit_btc, '.8f'),
                 TRADE,
-                format(profit_percent, 2)
+                round(profit_percent, 2)
             )
         )
 
