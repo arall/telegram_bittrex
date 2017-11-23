@@ -41,7 +41,7 @@ class Trader:
                 format(stop_loss, '.8f'),
                 round(profit_btc, '.8f'),
                 TRADE,
-                format(profit_percent, 2),
+                format(profit_percent, 2)
             )
         )
 
