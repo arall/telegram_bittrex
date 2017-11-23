@@ -33,7 +33,7 @@ class Trader:
         profit_percent = self.calc_profit_precent(self.current_price)
 
         self.log(
-            'Current: %s | Bought: %s | Target: %s | Stoploss: %s | Profit: %s %s (%s %%)
+            'Current: %s | Bought: %s | Target: %s | Stoploss: %s | Profit: %s %s (%s %%)'
             % (
                 format(self.current_price, '.8f'),
                 format(self.signal.b_price, '.8f'),
