@@ -27,14 +27,21 @@ class Trader:
         target = self.calc_target_price()
         # Calculate the stoploss price
         stop_loss = self.calc_stoploss_price()
+        # Calculate the current profit in BTC
+        profit_btc = self.calc_profit(self.current_price)
+        # Calculate the current profit percentage
+        profit_percent = self.calc_profit_precent(self.current_price)
 
         self.log(
-            'Current: %s | Bought: %s | Target: %s | Stoploss: %s'
+            'Current: %s | Bought: %s | Target: %s | Stoploss: %s | Profit: %s %s (%s %%)
             % (
                 format(self.current_price, '.8f'),
                 format(self.signal.b_price, '.8f'),
                 format(target, '.8f'),
-                format(stop_loss, '.8f')
+                format(stop_loss, '.8f'),
+                round(profit_btc, 2),
+                TRADE,
+                format(profit_percent, '.8f'),
             )
         )
 
@@ -115,6 +122,23 @@ class Trader:
                     float(SAFE_ORDER) *
                     float(self.current_price)
                 ) / 100)
+
+    # Calc a profit in BTC based on a sell price
+    def calc_profit(self, sell_price):
+        price_change = float(sell_price) - float(self.signal.b_price)
+        return (price_change * float(self.signal.quantity))
+
+    # Calc a profit percent based on a sell price
+    def calc_profit_precent(self, sell_price):
+        top = float(self.signal.b_price) - float(sell_price)
+        bottom = float(self.signal.b_price) + float(sell_price)
+        bottom = bottom / 2
+        total = top / bottom * 100
+        if float(self.signal.b_price) > float(sell_price):
+            total = -abs(total)
+        else:
+            total = abs(total)
+        return float(total)
 
     # Create a buy order
     def buy(self):
@@ -249,18 +273,8 @@ class Trader:
         btc_price = float(self.signal.s_price) * float(self.signal.quantity)
 
         # Profit
-        price_change = float(self.signal.s_price) - float(self.signal.b_price)
-        self.signal.profit_btc = (price_change * float(self.signal.quantity))
-        top = float(self.signal.b_price) - float(self.signal.s_price)
-        bottom = float(self.signal.b_price) + float(self.signal.s_price)
-        bottom = bottom / 2
-        total = top / bottom * 100
-        if float(self.signal.b_price) > float(self.signal.s_price):
-            total = -abs(total)
-        else:
-            total = abs(total)
-        self.signal.profit_percent = round(total, 8)
-        self.signal.save()
+        self.signal.profit_btc = self.calc_profit(self.signal.s_price)
+        self.signal.profit_percent = self.calc_profit_precent(self.signal.s_price)
 
         # Message
         self.message(
