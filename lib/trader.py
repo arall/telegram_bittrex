@@ -163,7 +163,7 @@ class Trader:
         try:
             order['uuid']
         except:
-            self.message('API Error: %s' % order)
+            self.message('%s (%s): API Error: %s' % (self.signal.id, self.signal.coin, order))
             return
 
         # Updates the order
@@ -190,6 +190,10 @@ class Trader:
             order['uuid']
         except:
             self.message('API Error: %s' % order)
+            self.message('Quantity: %s | Price: %s' % (
+                format(self.signal.quantity, '.8f'),
+                format(sell_price, '.8f')
+            ))
             return
 
         # Updates the order
