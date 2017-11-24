@@ -7,8 +7,10 @@ from lib.trader import Trader
 from lib.database import Signal
 
 # Default help message
-HELP = 'Use /buy COIN [BTC_AMOUNT] [WIN_RATIO] [STOP_LOSS]\n' \
-        '/buy DOGE 0.01 5% 0.00000001'
+HELP = 'Use /command COIN [BTC_AMOUNT] [WIN_RATIO] [STOP_LOSS]\n' \
+        '/auto DOGE 0.01 5% 0.00000001\n' \
+        '/sell COIN' \
+        '/buy COIN 0.01'
 
 
 class Message:
@@ -26,12 +28,34 @@ class Message:
         self.message = message
         self.text = self.message.text.encode('unicode_escape')
 
-    def process(self):
+    def process_auto(self):
         if self.decode():
             self.create()
-            return self.signal
+            if self.signal:
+                trader = Trader(self.signal, bot)
+                trader.process()
 
-    # Decode the received /buy message
+    def process_buy(self):
+        if self.decode():
+            self.create(False)
+            if self.signal:
+                trader = Trader(self.signal, bot)
+                trader.buy(True)
+
+    def process_sell(self):
+        if self.decode():
+            try:
+                self.signal = Signal.select(). \
+                    where(Signal.status == 3). \
+                    where(Signal.coin == self.coin). \
+                    get()
+            except:
+                bot.reply_to(self.message, 'Coin not found!')
+            if self.signal:
+                trader = Trader(self.signal, bot)
+                trader.sell()
+
+    # Decode the received /buy or /sell message
     def decode(self):
         try:
             parts = string.split(self.text, ' ')
@@ -66,7 +90,7 @@ class Message:
             bot.reply_to(self.message, 'I don\'t understand you.\n' + HELP)
 
     # Create the signal Model
-    def create(self):
+    def create(self, auto=True):
         # Only authorised usernames
         if self.message.from_user.username not in USERNAMES:
             bot.reply_to(self.message, 'Your nickname is not authorised!')
@@ -75,6 +99,7 @@ class Message:
             chat_id=self.message.chat.id,
             username=self.message.from_user.username,
             text=self.text,
+            auto=auto,
             coin=self.coin,
             market=TRADE + '-' + self.coin,
             btc=self.btc,
@@ -90,13 +115,16 @@ bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
 
 # Buy command
-@bot.message_handler(commands=['buy'])
-def send_welcome(message):
+@bot.message_handler(commands=['auto'])
+def send_auto(message):
     message = Message(message)
-    signal = message.process()
-    if signal:
-        trader = Trader(signal, bot)
-        trader.buy()
+    message.process_auto()
+
+
+@bot.message_handler(commands=['sell'])
+def send_sell(message):
+    message = Message(message)
+    message.process_sell()
 
 
 # Default message

@@ -1,4 +1,4 @@
-from peewee import Field, Model, PrimaryKeyField, TextField, CharField, DateTimeField, IntegerField, DecimalField
+from peewee import Field, Model, PrimaryKeyField, TextField, CharField, DateTimeField, IntegerField, DecimalField, BooleanField
 from playhouse.db_url import connect
 from secrets import DB
 import datetime
@@ -23,6 +23,7 @@ class Signal(Model):
     chat_id = CharField(null=True)
     username = CharField(null=True)
     text = TextField()
+    auto = BooleanField(default=true)
     coin = CharField()
     market = CharField()
     win_percent = IntegerField(null=True)
