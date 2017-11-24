@@ -23,7 +23,7 @@ class Signal(Model):
     chat_id = CharField(null=True)
     username = CharField(null=True)
     text = TextField()
-    auto = BooleanField(default=true)
+    auto = BooleanField(default=True)
     coin = CharField()
     market = CharField()
     win_percent = IntegerField(null=True)

@@ -40,7 +40,7 @@ class Message:
             self.create(False)
             if self.signal:
                 trader = Trader(self.signal, bot)
-                trader.buy(True)
+                trader.buy()
 
     def process_sell(self):
         if self.decode():
@@ -119,6 +119,12 @@ bot = telebot.TeleBot(TELEGRAM_TOKEN)
 def send_auto(message):
     message = Message(message)
     message.process_auto()
+
+
+@bot.message_handler(commands=['buy'])
+def send_buy(message):
+    message = Message(message)
+    message.process_buy()
 
 
 @bot.message_handler(commands=['sell'])
