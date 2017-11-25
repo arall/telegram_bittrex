@@ -33,7 +33,7 @@ class Message:
             self.create()
             if self.signal:
                 trader = Trader(self.signal, bot)
-                trader.process()
+                trader.buy()
 
     def process_buy(self):
         if self.decode():

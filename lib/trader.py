@@ -279,6 +279,8 @@ class Trader:
         # Profit
         self.signal.profit_btc = self.calc_profit(self.signal.s_price)
         self.signal.profit_percent = self.calc_profit_precent(self.signal.s_price)
+        
+        self.signal.save()
 
         # Message
         self.message(
