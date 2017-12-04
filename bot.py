@@ -10,7 +10,8 @@ from lib.database import Signal
 HELP = 'Use /command COIN [BTC_AMOUNT] [WIN_RATIO] [STOP_LOSS]\n' \
         '/auto DOGE 0.01 5% 0.00000001\n' \
         '/sell COIN' \
-        '/buy COIN 0.01'
+        '/buy COIN 0.01' \
+        '/status'
 
 
 class Message:
@@ -34,6 +35,14 @@ class Message:
             if self.signal:
                 trader = Trader(self.signal, bot)
                 trader.buy()
+
+    def process_status(self):
+        signals = Signal.select().where(Signal.status.between(2, 4))
+        if signals:
+            for signal in signals:
+                trader = Trader(signal, bot)
+                trader.load()
+                trader.status()
 
     def process_buy(self):
         if self.decode():
@@ -114,7 +123,6 @@ class Message:
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
 
-# Buy command
 @bot.message_handler(commands=['auto'])
 def send_auto(message):
     message = Message(message)
@@ -131,6 +139,12 @@ def send_buy(message):
 def send_sell(message):
     message = Message(message)
     message.process_sell()
+
+
+@bot.message_handler(commands=['status'])
+def send_status(message):
+    message = Message(message)
+    message.process_status()
 
 
 # Default message

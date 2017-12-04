@@ -9,12 +9,27 @@ class Trader:
     signal = None
     api = None
     bot = None
+    target = None
+    stop_loss = None
+    profit_btc = None
+    profit_percent = None
 
     def __init__(self, signal, bot=None):
         self.signal = signal
         self.bot = bot
         self.api = bittrex(BITTREX_KEY, BITTREX_SECRET)
         self.current_price = self.get_last_price()
+
+    # Load the basic properties
+    def load(self):
+        # Calculate the target price
+        self.target = self.calc_target_price()
+        # Calculate the stoploss price
+        self.stop_loss = self.calc_stoploss_price()
+        # Calculate the current profit in BTC
+        self.profit_btc = self.calc_profit(self.current_price)
+        # Calculate the current profit percentage
+        self.profit_percent = self.calc_profit_precent(self.current_price)
 
     # Analises the signal and perform the necessary market orders
     def process(self):
@@ -23,25 +38,18 @@ class Trader:
             self.message('Bittrex: price error!')
             return
 
-        # Calculate the target price
-        target = self.calc_target_price()
-        # Calculate the stoploss price
-        stop_loss = self.calc_stoploss_price()
-        # Calculate the current profit in BTC
-        profit_btc = self.calc_profit(self.current_price)
-        # Calculate the current profit percentage
-        profit_percent = self.calc_profit_precent(self.current_price)
+        self.load()
 
         self.log(
             'Current: %s | Bought: %s | Target: %s | Stoploss: %s | Profit: %s %s (%s %%)'
             % (
                 format(self.current_price, '.8f'),
                 format(self.signal.b_price, '.8f'),
-                format(target, '.8f'),
-                format(stop_loss, '.8f'),
-                format(profit_btc, '.8f'),
+                format(self.target, '.8f'),
+                format(self.stop_loss, '.8f'),
+                format(self.profit_btc, '.8f'),
                 TRADE,
-                round(profit_percent, 2)
+                round(self.profit_percent, 2)
             )
         )
 
@@ -51,13 +59,13 @@ class Trader:
         # Bought signals
         if self.signal.status == 3:
             # Profit sell (current price higher or equal to the target)
-            if self.current_price >= target:
+            if self.current_price >= self.target:
                 self.log('Profit!')
                 self.sell()
                 return
 
             # Stop loss sell (current price lower or equal to the stop loss)
-            if stop_loss and self.current_price <= float(stop_loss):
+            if self.stop_loss and self.current_price <= float(self.stop_loss):
                 self.log('Stop loss reached!')
                 self.sell()
                 return
@@ -279,7 +287,7 @@ class Trader:
         # Profit
         self.signal.profit_btc = self.calc_profit(self.signal.s_price)
         self.signal.profit_percent = self.calc_profit_precent(self.signal.s_price)
-        
+
         self.signal.save()
 
         # Message
@@ -313,6 +321,22 @@ class Trader:
     # Shows a console log message
     def log(self, text):
         print '[%d][%s] %s' % (self.signal.id, self.signal.market, text)
+
+    # Sends the current signal status
+    def status(self):
+        self.message(
+            '%s: Current: %s | Bought: %s | Target: %s | Stoploss: %s | Profit: %s %s (%s %%)'
+            % (
+                self.signal.coin,
+                format(self.current_price, '.8f'),
+                format(self.signal.b_price, '.8f'),
+                format(self.target, '.8f'),
+                format(self.stop_loss, '.8f'),
+                format(self.profit_btc, '.8f'),
+                TRADE,
+                round(self.profit_percent, 2)
+            )
+        )
 
     # Sends a telegram message
     def message(self, text):
