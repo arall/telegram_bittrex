@@ -5,6 +5,8 @@ import string
 from secrets import TELEGRAM_TOKEN, TRADE, USERNAMES, DEFAULT_AMOUNT, DEFAULT_WIN, DEFAULT_STOPLOSS
 from lib.trader import Trader
 from lib.database import Signal
+import urllib
+import time
 
 # Default help message
 HELP = 'Use /command COIN [BTC_AMOUNT] [WIN_RATIO] [STOP_LOSS]\n' \
@@ -154,4 +156,11 @@ def echo_all(message):
     bot.reply_to(message, HELP)
 
 
-bot.polling(True)
+try:
+    bot.polling(none_stop=True)
+except urllib.error.HTTPError:
+    time.sleep(10)
+
+
+while True:
+    time.sleep(20)
