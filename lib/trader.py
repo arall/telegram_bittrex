@@ -216,11 +216,16 @@ class Trader:
     def processed(self, order):
         # Buy order
         if order['Type'] == 'LIMIT_BUY':
+            order_type = 'Buy'
             self.signal.status = 3
         # Sell order
         else:
+            order_type = 'Sell'
             self.signal.status = 5
         self.signal.save()
+
+        # Message
+        self.message('%s %s order processed!' % (self.signal.coin, order_type))
 
     # Updates a completed buy order
     def buy_update(self, uuid=None):
@@ -252,7 +257,7 @@ class Trader:
 
         # Message
         self.message(
-            'Bought %s %s at %s for %s %s' %
+            'Buy order placed: %s %s at %s for %s %s' %
             (
                 quantity,
                 self.signal.coin,
@@ -297,7 +302,7 @@ class Trader:
 
         # Message
         self.message(
-            'Sold %s %s at %s for %s %s (%s %% profit! | %s %s)' %
+            'Sell order placed: %s %s at %s for %s %s (%s %% profit! | %s %s)' %
             (
                 self.signal.quantity,
                 self.signal.coin,
