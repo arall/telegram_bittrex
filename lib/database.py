@@ -1,6 +1,6 @@
 from peewee import Field, Model, PrimaryKeyField, TextField, CharField, DateTimeField, IntegerField, DecimalField, BooleanField
 from playhouse.db_url import connect
-from secrets import DB
+from secrets import DB, DB_TABLE
 import datetime
 
 db = connect(DB)
@@ -22,7 +22,7 @@ class Satoshi(DecimalField):
 class Signal(Model):
     class Meta:
         database = db
-        db_table = 'signals'
+        db_table = DB_TABLE
 
     id = PrimaryKeyField()
 
