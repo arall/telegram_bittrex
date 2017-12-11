@@ -5,6 +5,13 @@ import datetime
 
 db = connect(DB)
 
+# this is not necessary, because peewee open the connection automatically
+def before_execute_any_query():
+    db.connect(DB)
+
+# after execute all queries and complete the action
+def after_execute_query():
+    db.close(DB)
 
 class Satoshi(DecimalField):
     def db_value(self, value):

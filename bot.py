@@ -158,7 +158,7 @@ def echo_all(message):
 
 try:
     bot.polling(none_stop=True)
-except urllib.error.HTTPError:
+except:
     time.sleep(10)
 
 
