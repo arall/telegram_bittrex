@@ -170,11 +170,10 @@ def echo_all(message):
     bot.reply_to(message, HELP)
 
 
-bot.polling(none_stop=True)
-#try:
-#    bot.polling(none_stop=True)
-#except:
-#    time.sleep(10)
+try:
+    bot.polling(none_stop=True)
+except:
+    time.sleep(10)
 
 
 while True:
