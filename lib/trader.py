@@ -13,12 +13,17 @@ class Trader:
     stop_loss = None
     profit_btc = None
     profit_percent = None
+    chat_id = None
 
-    def __init__(self, signal, bot=None):
+    def __init__(self, signal=None, bot=None, chat_id=None):
         self.signal = signal
         self.bot = bot
         self.api = bittrex(BITTREX_KEY, BITTREX_SECRET)
-        self.current_price = self.get_last_price()
+        if self.signal:
+            self.current_price = self.get_last_price()
+            self.chat_id = self.signal.chat_id
+        if chat_id:
+            self.chat_id = chat_id
 
     # Load the basic properties
     def load(self):
@@ -320,7 +325,10 @@ class Trader:
 
     # Shows a console log message
     def log(self, text):
-        print '[%d][%s] %s' % (self.signal.id, self.signal.market, text)
+        if self.signal:
+            print '[%d][%s] %s' % (self.signal.id, self.signal.market, text)
+        else:
+            print '%s' % text
 
     # Sends the current signal status
     def status(self):
@@ -338,11 +346,16 @@ class Trader:
             )
         )
 
+    # Sends the current amount of BTCs (available / used) and its price
+    def btcs(self):
+        response = self.api.getbalance('BTC')
+        self.message('Available BTCs: %s' % format(response['Available'], '.8f'))
+
     # Sends a telegram message
     def message(self, text):
         if self.bot:
             try:
-                self.bot.send_message(self.signal.chat_id, text)
+                self.bot.send_message(self.chat_id, text)
             except Exception as e:
                 self.log('Telegram error: %s' % str(e))
                 self.log('Message: %s' % text)

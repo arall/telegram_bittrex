@@ -5,15 +5,15 @@ import string
 from secrets import TELEGRAM_TOKEN, TRADE, USERNAMES, DEFAULT_AMOUNT, DEFAULT_WIN, DEFAULT_STOPLOSS
 from lib.trader import Trader
 from lib.database import Signal
-import urllib
 import time
 
 # Default help message
 HELP = 'Use /command COIN [BTC_AMOUNT] [WIN_RATIO] [STOP_LOSS]\n' \
         '/auto DOGE 0.01 5% 0.00000001\n' \
-        '/sell COIN' \
-        '/buy COIN 0.01' \
-        '/status'
+        '/sell COIN\n' \
+        '/buy COIN 0.01\n' \
+        '/status\n' \
+        '/btcs\n'
 
 
 class Message:
@@ -31,6 +31,7 @@ class Message:
         self.message = message
         self.text = self.message.text.encode('unicode_escape')
 
+    # Process an auto buy (and further sell)
     def process_auto(self):
         if self.decode():
             self.create()
@@ -38,6 +39,12 @@ class Message:
                 trader = Trader(self.signal, bot)
                 trader.buy()
 
+    # Shows the amout of BTCs available
+    def process_btcs(self):
+        trader = Trader(bot=bot, chat_id=self.message.chat.id)
+        trader.btcs()
+
+    # Shows all active signals status
     def process_status(self):
         signals = Signal.select().where(Signal.status.between(2, 4))
         if signals:
@@ -46,6 +53,7 @@ class Message:
                 trader.load()
                 trader.status()
 
+    # Process a manual buy
     def process_buy(self):
         if self.decode():
             self.create(False)
@@ -53,6 +61,7 @@ class Message:
                 trader = Trader(self.signal, bot)
                 trader.buy()
 
+    # Process a manual sell
     def process_sell(self):
         if self.decode():
             try:
@@ -149,17 +158,23 @@ def send_status(message):
     message.process_status()
 
 
+@bot.message_handler(commands=['btcs'])
+def send_btcs(message):
+    message = Message(message)
+    message.process_btcs()
+
+
 # Default message
 @bot.message_handler(func=lambda message: True)
 def echo_all(message):
-    print 'test'
     bot.reply_to(message, HELP)
 
 
-try:
-    bot.polling(none_stop=True)
-except:
-    time.sleep(10)
+bot.polling(none_stop=True)
+#try:
+#    bot.polling(none_stop=True)
+#except:
+#    time.sleep(10)
 
 
 while True:
