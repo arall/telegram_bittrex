@@ -155,6 +155,12 @@ class Trader:
 
     # Create a buy order
     def buy(self):
+
+        # Bittrex API error (probably a 5xx error)
+        if not self.current_price:
+            self.message('Bittrex: price error!')
+            return
+
         # stop loss protection
         stop_loss = self.calc_stoploss_price()
         if stop_loss and self.current_price <= float(stop_loss):
