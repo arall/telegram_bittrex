@@ -86,7 +86,10 @@ class Trader:
             print order
             if order['IsOpen'] is not True:
                 # Update the order
-                self.processed(order)
+                if order['CancelInitiated'] is True:
+                    self.cancelled(order)
+                else:
+                    self.processed(order)
                 return
 
     # Get the last market price
@@ -217,6 +220,14 @@ class Trader:
 
         # Updates the order
         self.sell_update(order['uuid'])
+
+    # Mark the order as cancelled
+    def cancelled(self, order):
+        self.signal.status = 6
+        self.signal.save()
+
+        # Message
+        self.message('%s order cancelled!' % (self.signal.coin))
 
     # Mark the order as processed
     def processed(self, order):
