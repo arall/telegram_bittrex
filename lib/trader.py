@@ -14,6 +14,7 @@ class Trader:
     profit_btc = None
     profit_percent = None
     chat_id = None
+    btc_price = None
 
     def __init__(self, signal=None, bot=None, chat_id=None):
         self.signal = signal
@@ -21,6 +22,7 @@ class Trader:
         self.api = bittrex(BITTREX_KEY, BITTREX_SECRET)
         if self.signal:
             self.current_price = self.get_last_price()
+            self.btc_price = self.getBTCPrice()
             self.chat_id = self.signal.chat_id
         if chat_id:
             self.chat_id = chat_id
@@ -93,9 +95,11 @@ class Trader:
                 return
 
     # Get the last market price
-    def get_last_price(self):
+    def get_last_price(self, coin=None):
+        if coin is None:
+            coin = self.signal.market
         try:
-            summary = self.api.getmarketsummary(self.signal.market)
+            summary = self.api.getmarketsummary(coin)
             return float(summary[0]['Last'])
         except:
             pass
@@ -274,13 +278,14 @@ class Trader:
 
         # Message
         self.message(
-            'Buy order placed: %s %s at %s for %s %s' %
+            'Buy order placed: %s %s at %s for %s %s (%s USD)' %
             (
                 quantity,
                 self.signal.coin,
                 format(price, '.8f'),
                 self.signal.btc,
-                TRADE
+                TRADE,
+                round(self.btc_price * self.signal.btc, 2)
             )
         )
 
@@ -319,7 +324,7 @@ class Trader:
 
         # Message
         self.message(
-            'Sell order placed: %s %s at %s for %s %s (%s %% profit! | %s %s)' %
+            'Sell order placed: %s %s at %s for %s %s \n(%s %% profit! | %s %s | %s USD)' %
             (
                 self.signal.quantity,
                 self.signal.coin,
@@ -329,6 +334,7 @@ class Trader:
                 round(self.signal.profit_percent, 2),
                 format(self.signal.profit_btc, '.8f'),
                 TRADE,
+                round(self.btc_price * self.profit_btc, 2)
             )
         )
 
@@ -355,7 +361,7 @@ class Trader:
     # Sends the current signal status
     def status(self):
         self.message(
-            '%s: Current: %s | Bought: %s | Target: %s | Stoploss: %s | Profit: %s %s (%s %%)'
+            '%s: \nCurrent: %s \nBought: %s \nTarget: %s \nStoploss: %s \nProfit: %s %s (%s %% | %s USD)'
             % (
                 self.signal.coin,
                 format(self.current_price, '.8f'),
@@ -364,14 +370,49 @@ class Trader:
                 format(self.stop_loss, '.8f'),
                 format(self.profit_btc, '.8f'),
                 TRADE,
-                round(self.profit_percent, 2)
+                round(self.profit_percent, 2),
+                round(self.btc_price * self.profit_btc, 2)
             )
         )
 
     # Sends the current amount of BTCs (available / used) and its price
     def btcs(self):
+        availableBTCs = self.getAvailableBTCs()
+        price = self.getBTCPrice()
+        total = self.getTotalBTCs()
+        usd = total * price
+
+        self.message('Available BTCs: %s' % format(availableBTCs, '.8f'))
+        self.message('Total BTCs: %s' % format(total, '.8f'))
+        self.message('Total USD: %s' % int(usd))
+
+    # Get the BTC Price
+    def getBTCPrice(self):
+        response = self.api.getBTCPrice()
+        return response['bpi']['USD']['rate_float']
+
+    # Get the available BTCs
+    def getAvailableBTCs(self):
         response = self.api.getbalance('BTC')
-        self.message('Available BTCs: %s' % format(response['Available'], '.8f'))
+        return response['Available']
+
+    # Get total BTCs
+    def getTotalBTCs(self):
+        availableBTCs = self.getAvailableBTCs()
+        balances = self.api.getbalances()
+        total = 0
+        for balance in balances:
+            amount = balance['Available']
+            if amount > 0:
+                coin = balance['Currency']
+                if coin is TRADE:
+                    total += amount
+                else:
+                    price = self.get_last_price(TRADE + '-' + coin)
+                    if price:
+                        btcs = amount * price
+                        total += btcs
+        return total + availableBTCs
 
     # Sends a telegram message
     def message(self, text):

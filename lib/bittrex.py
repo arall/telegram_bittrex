@@ -15,7 +15,7 @@ class bittrex(object):
         self.public = ['getmarkets', 'getcurrencies', 'getticker', 'getmarketsummaries', 'getmarketsummary', 'getorderbook', 'getmarkethistory']
         self.market = ['buylimit', 'buymarket', 'selllimit', 'sellmarket', 'cancel', 'getopenorders']
         self.account = ['getbalances', 'getbalance', 'getdepositaddress', 'withdraw', 'getorder', 'getorderhistory', 'getwithdrawalhistory', 'getdeposithistory']
-
+        self.currencies = ['GetBTCPrice']
 
     def query(self, method, values={}):
         if method in self.public:
@@ -24,6 +24,8 @@ class bittrex(object):
             url = 'https://bittrex.com/api/v1.1/market/'
         elif method in self.account:
             url = 'https://bittrex.com/api/v1.1/account/'
+        elif method in self.currencies:
+            url = 'https://bittrex.com/Api/v2.0/pub/currencies/'
         else:
             return 'Something went wrong, sorry.'
 
@@ -45,6 +47,9 @@ class bittrex(object):
         else:
             return response["message"]
 
+
+    def getBTCPrice(self):
+        return self.query('GetBTCPrice')
 
     def getmarkets(self):
         return self.query('getmarkets')

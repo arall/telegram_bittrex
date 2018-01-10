@@ -170,9 +170,11 @@ def echo_all(message):
     bot.reply_to(message, HELP)
 
 
-while True:
-    try:
-        bot.polling(none_stop=True)
-    except Exception as err:
-        print "Connection error!"
-        time.sleep(5)
+bot.polling(none_stop=True)
+
+#while True:
+#    try:
+#        bot.polling(none_stop=True)
+#    except Exception as err:
+#        print "Connection error!"
+#        time.sleep(5)

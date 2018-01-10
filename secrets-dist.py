@@ -2,6 +2,7 @@ TELEGRAM_TOKEN = ''
 BITTREX_KEY = ''
 BITTREX_SECRET = ''
 DB = 'mysql://root@localhost/bittrex'
+DB_NAME = 'bittrex'
 DB_TABLE = 'signals'
 DEMO = True
 TRADE = 'BTC'
